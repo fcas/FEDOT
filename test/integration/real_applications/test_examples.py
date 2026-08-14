@@ -1,8 +1,9 @@
+import os.path
 from datetime import timedelta
 
 import numpy as np
-from sklearn.metrics import mean_squared_error
 
+from examples.advanced.multi_modal_pipeline import run_multi_modal_pipeline
 from examples.advanced.multimodal_text_num_example import run_multi_modal_example
 from examples.advanced.multiobj_optimisation import run_classification_multiobj_example
 from examples.advanced.time_series_forecasting.exogenous import run_exogenous_experiment
@@ -16,6 +17,7 @@ from examples.simple.pipeline_tune import get_case_train_test_data, pipeline_tun
 from examples.simple.time_series_forecasting.api_forecasting import run_ts_forecasting_example
 from examples.simple.time_series_forecasting.gapfilling import run_gapfilling_example
 from examples.simple.time_series_forecasting.ts_pipelines import ts_complex_dtreg_pipeline
+from fedot.core.composer.metrics import root_mean_squared_error
 from fedot.core.utils import fedot_project_root
 
 
@@ -35,7 +37,7 @@ def test_gapfilling_example():
         # Get only values in the gap
         predicted_values = arr_without_gaps[gap_ids]
         true_values = real_data[gap_ids]
-        model_rmse = mean_squared_error(true_values, predicted_values, squared=False)
+        model_rmse = root_mean_squared_error(true_values, predicted_values)
         # only ridge correctly interpolate the data
         if key == 'ridge':
             assert model_rmse < 0.5
@@ -84,8 +86,9 @@ def test_api_classification_example():
 
 
 def test_api_ts_forecasting_example():
-    forecast = run_ts_forecasting_example(dataset='salaries', timeout=2, with_tuning=False)
-    assert forecast is not None
+    for _ in range(10):
+        forecast = run_ts_forecasting_example(dataset='salaries', timeout=2, with_tuning=False)
+        assert forecast is not None
 
 
 def test_api_classification_multiobj_example():
@@ -101,3 +104,9 @@ def test_api_explain_example():
 def test_multi_modal_example():
     result = run_multi_modal_example(file_path='examples/data/multimodal_wine.csv', with_tuning=False, timeout=2)
     assert result > 0.5
+
+
+def test_full_multi_modal_example():
+    result = run_multi_modal_pipeline(files_path=os.path.join('examples', 'data', 'multimodal'),
+                                      timeout=0.1, visualization=False)
+    assert result > 0.1

@@ -15,8 +15,8 @@ class PreprocessingCache(BaseCache):
     :param cache_dir: path to the place where cache files should be stored.
     """
 
-    def __init__(self, cache_dir: Optional[str] = None, custom_pid=None):
-        super().__init__(PreprocessingCacheDB(cache_dir, custom_pid))
+    def __init__(self, cache_dir: Optional[str] = None, custom_pid=None, use_stats: bool = False):
+        super().__init__(PreprocessingCacheDB(cache_dir, custom_pid, use_stats))
 
     def try_load_preprocessor(self, pipeline: 'Pipeline', fold_id: Union[int, None]):
         """
@@ -30,8 +30,8 @@ class PreprocessingCache(BaseCache):
             processors = self._db.get_preprocessor(structural_id)
             if processors:
                 pipeline.encoder, pipeline.imputer = processors
-        except Exception as ex:
-            self.log.warning(f'Preprocessor search error: {ex}', raise_if_test=True)
+        except Exception:
+            self.log.log_or_raise('warning', ValueError('Preprocessor search error'))
 
     def add_preprocessor(self, pipeline: 'Pipeline', fold_id: Optional[Union[int, None]] = None):
         """

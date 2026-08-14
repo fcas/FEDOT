@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Optional
 import os.path
 import sys
 from abc import abstractmethod
@@ -12,6 +15,7 @@ from sklearn.metrics import (accuracy_score, auc, f1_score, log_loss, mean_absol
                              precision_score, r2_score, roc_auc_score, roc_curve, silhouette_score)
 from sktime.performance_metrics.forecasting import mean_absolute_scaled_error
 
+from fedot.core.caching.predictions_cache import PredictionsCache
 from fedot.core.data.data import InputData, OutputData
 from fedot.core.pipelines.pipeline import Pipeline
 from fedot.core.pipelines.ts_wrappers import in_sample_ts_forecast
@@ -58,8 +62,12 @@ class QualityMetric(Metric):
         raise AbstractMethodNotImplementError
 
     @classmethod
-    def get_value(cls, pipeline: Pipeline, reference_data: InputData,
-                  validation_blocks: Optional[int] = None) -> float:
+    def get_value(cls,
+                  pipeline: Pipeline,
+                  reference_data: InputData,
+                  validation_blocks: Optional[int] = None,
+                  predictions_cache: Optional[PredictionsCache] = None,
+                  fold_id: Optional[int] = None) -> float:
         """ Get metric value based on pipeline, reference data, and number of validation blocks.
         Args:
             pipeline: a :class:`Pipeline` instance for evaluation.
@@ -69,12 +77,14 @@ class QualityMetric(Metric):
         """
         metric = cls.default_value
         try:
+            # if results is None:
             if validation_blocks is None:
                 # Time series or regression classical hold-out validation
-                reference_data, results = cls._simple_prediction(pipeline, reference_data)
+                reference_data, results = cls._simple_prediction(pipeline, reference_data, predictions_cache, fold_id)
             else:
                 # Perform time series in-sample validation
-                reference_data, results = cls._in_sample_prediction(pipeline, reference_data, validation_blocks)
+                reference_data, results = cls._in_sample_prediction(
+                    pipeline, reference_data, validation_blocks, predictions_cache=predictions_cache, fold_id=fold_id)
             metric = cls.metric(reference_data, results)
 
             if is_analytic_mode():
@@ -89,20 +99,33 @@ class QualityMetric(Metric):
                               title=f'Forecast with metric {round(metric, 4)}',
                               save_path=Path(save_path, 'forecast.png'))
 
-        except Exception as ex:
-            pipeline.log.info(f'Metric can not be evaluated because of: {ex}', raise_if_test=True)
+        except Exception:
+            pipeline.log.log_or_raise('info', ValueError('Metric can not be evaluated'))
 
         return metric
 
     @classmethod
-    def _simple_prediction(cls, pipeline: Pipeline, reference_data: InputData) -> Tuple[InputData, OutputData]:
+    def _simple_prediction(cls,
+                           pipeline: Pipeline,
+                           reference_data: InputData,
+                           predictions_cache: Optional[PredictionsCache] = None,
+                           fold_id: Optional[int] = None) -> Tuple[InputData, OutputData]:
         """ Method calls pipeline.predict() and returns the result. """
-        return reference_data, pipeline.predict(reference_data, output_mode=cls.output_mode)
+        return reference_data, pipeline.predict(
+            reference_data, output_mode=cls.output_mode, predictions_cache=predictions_cache, fold_id=fold_id)
 
     @classmethod
-    def get_value_with_penalty(cls, pipeline: Pipeline, reference_data: InputData,
-                               validation_blocks: Optional[int] = None) -> float:
-        quality_metric = cls.get_value(pipeline, reference_data, validation_blocks)
+    def get_value_with_penalty(cls,
+                               pipeline: Pipeline,
+                               reference_data: InputData,
+                               validation_blocks: Optional[int] = None,
+                               predictions_cache: Optional[PredictionsCache] = None,
+                               fold_id: Optional[int] = None) -> float:
+        quality_metric = cls.get_value(pipeline=pipeline,
+                                       reference_data=reference_data,
+                                       validation_blocks=validation_blocks,
+                                       predictions_cache=predictions_cache,
+                                       fold_id=fold_id)
         structural_metric = StructuralComplexity.get_value(pipeline)
 
         penalty = abs(structural_metric * quality_metric * cls.max_penalty_part)
@@ -111,8 +134,11 @@ class QualityMetric(Metric):
         return metric_with_penalty
 
     @staticmethod
-    def _in_sample_prediction(pipeline: Pipeline, data: InputData, validation_blocks: int
-                              ) -> Tuple[InputData, OutputData]:
+    def _in_sample_prediction(pipeline: Pipeline,
+                              data: InputData,
+                              validation_blocks: int,
+                              predictions_cache: Optional[PredictionsCache] = None,
+                              fold_id: Optional[int] = None) -> Tuple[InputData, OutputData]:
         """ Performs in-sample pipeline validation for time series prediction """
 
         horizon = int(validation_blocks * data.task.task_params.forecast_length)
@@ -121,7 +147,9 @@ class QualityMetric(Metric):
 
         predicted_values = in_sample_ts_forecast(pipeline=pipeline,
                                                  input_data=data,
-                                                 horizon=horizon)
+                                                 horizon=horizon,
+                                                 predictions_cache=predictions_cache,
+                                                 fold_id=fold_id)
 
         # Wrap target and prediction arrays into OutputData and InputData
         results = OutputData(idx=np.arange(0, len(predicted_values)), features=predicted_values,
@@ -141,13 +169,21 @@ class QualityMetric(Metric):
         return least_frequent_val
 
 
+def root_mean_squared_error(y_true: np.ndarray, y_pred: np.ndarray, **kwargs) -> float:
+    # TODO: remove workaround when python3.8 (scikit-learn<1.6) support is no longer required
+    try:
+        from sklearn.metrics import root_mean_squared_error
+        return root_mean_squared_error(y_true=y_true, y_pred=y_pred)
+    except ImportError:
+        return mean_squared_error(y_true=y_true, y_pred=y_pred, squared=False)
+
+
 class RMSE(QualityMetric):
     default_value = sys.maxsize
 
     @staticmethod
     def metric(reference: InputData, predicted: OutputData) -> float:
-        return mean_squared_error(y_true=reference.target,
-                                  y_pred=predicted.predict, squared=False)
+        return root_mean_squared_error(reference.target, predicted.predict)
 
 
 class MSE(QualityMetric):
@@ -156,7 +192,7 @@ class MSE(QualityMetric):
     @staticmethod
     def metric(reference: InputData, predicted: OutputData) -> float:
         return mean_squared_error(y_true=reference.target,
-                                  y_pred=predicted.predict, squared=True)
+                                  y_pred=predicted.predict)
 
 
 class MSLE(QualityMetric):

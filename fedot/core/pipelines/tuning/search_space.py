@@ -134,10 +134,10 @@ class PipelineSearchSpace(SearchSpace):
                     'sampling-scope': [[True, False]],
                     'type': 'categorical'}
             },
-            'xgbreg': {
+            'xgboostreg': {
                 'max_depth': {
                     'hyperopt-dist': hp.uniformint,
-                    'sampling-scope': [1, 11],
+                    'sampling-scope': [1, 7],
                     'type': 'discrete'},
                 'learning_rate': {
                     'hyperopt-dist': hp.loguniform,
@@ -145,12 +145,32 @@ class PipelineSearchSpace(SearchSpace):
                     'type': 'continuous'},
                 'subsample': {
                     'hyperopt-dist': hp.uniform,
-                    'sampling-scope': [0.05, 1.0],
+                    'sampling-scope': [0.05, 0.99],
                     'type': 'continuous'},
                 'min_child_weight': {
                     'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [1, 21],
                     'type': 'discrete'},
+                'booster': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [['gbtree', 'dart', 'gblinear']],
+                    'type': 'categorical'},
+                'lambda': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [0, 1000],
+                    'type': 'discrete'},
+                'alpha': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [0, 1000],
+                    'type': 'discrete'},
+                'colsample_bytree': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [1e-4, 1],
+                    'type': 'continuous'},
+                'scale_pos_weight': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [1, 20],
+                    'type': 'continuous'},
             },
             'xgboost': {
                 'max_depth': {
@@ -168,7 +188,27 @@ class PipelineSearchSpace(SearchSpace):
                 'min_child_weight': {
                     'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [1, 21],
-                    'type': 'discrete'}
+                    'type': 'discrete'},
+                'booster': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [['gbtree', 'dart', 'gblinear']],
+                    'type': 'categorical'},
+                'lambda': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [0, 1000],
+                    'type': 'discrete'},
+                'alpha': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [0, 1000],
+                    'type': 'discrete'},
+                'colsample_bytree': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [1e-4, 1],
+                    'type': 'continuous'},
+                'scale_pos_weight': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [1, 20],
+                    'type': 'continuous'},
             },
             'svr': {
                 'C': {
@@ -393,11 +433,59 @@ class PipelineSearchSpace(SearchSpace):
                     'sampling-scope': [['mae', 'mse']],
                     'type': 'categorical'},
             },
+            'clstm': {
+                'hidden_size': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [20, 200],
+                    'type': 'continuous'},
+                'learning_rate': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [0.0005, 0.005],
+                    'type': 'continuous'},
+                'cnn1_kernel_size': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [3, 8],
+                    'type': 'discrete'},
+                'cnn1_output_size': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[8, 16, 32, 64]],
+                    'type': 'categorical'},
+                'cnn2_kernel_size': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [3, 8],
+                    'type': 'discrete'},
+                'cnn2_output_size': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[8, 16, 32, 64]],
+                    'type': 'categorical'},
+                'batch_size': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[64, 128]],
+                    'type': 'categorical'},
+                'num_epochs': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[10, 20, 50, 100]],
+                    'type': 'categorical'},
+                'optimizer': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [['adamw', 'sgd']],
+                    'type': 'categorical'},
+                'loss': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [['mae', 'mse']],
+                    'type': 'categorical'},
+            },
             'pca': {
                 'n_components': {
                     'hyperopt-dist': hp.uniform,
                     'sampling-scope': [0.1, 0.99],
                     'type': 'continuous'}
+            },
+            'dask_pca': {
+                'n_components': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [1, 20],
+                    'type': 'discrete'},
             },
             'kernel_pca': {
                 'n_components': {
@@ -429,13 +517,13 @@ class PipelineSearchSpace(SearchSpace):
                     'sampling-scope': [0.1, 1000],
                     'type': 'continuous'},
                 'max_trials': {
-                    'hyperopt-dist': hp.uniform,
+                    'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [50, 500],
-                    'type': 'continuous'},
+                    'type': 'discrete'},
                 'max_skips': {
-                    'hyperopt-dist': hp.uniform,
-                    'sampling-scope': [50, 500000],
-                    'type': 'continuous'}
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [50, 50000],
+                    'type': 'discrete'}
             },
             'ransac_non_lin_reg': {
                 'min_samples': {
@@ -447,13 +535,13 @@ class PipelineSearchSpace(SearchSpace):
                     'sampling-scope': [0.1, 1000],
                     'type': 'continuous'},
                 'max_trials': {
-                    'hyperopt-dist': hp.uniform,
+                    'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [50, 500],
-                    'type': 'continuous'},
+                    'type': 'discrete'},
                 'max_skips': {
-                    'hyperopt-dist': hp.uniform,
-                    'sampling-scope': [50, 500000],
-                    'type': 'continuous'}
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [50, 50000],
+                    'type': 'discrete'}
             },
             'isolation_forest_reg': {
                 'max_samples': {
@@ -580,10 +668,30 @@ class PipelineSearchSpace(SearchSpace):
                     'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [2, 256],
                     'type': 'discrete'},
+                'min_data_in_leaf': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [5, 100],
+                    'type': 'discrete'},
+                'bagging_fraction': {
+                    'hyperopt-dist': hp.loguniform,
+                    'sampling-scope': [0.01, 1.0],
+                    'type': 'continuous'},
+                'extra_trees': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
                 'learning_rate': {
                     'hyperopt-dist': hp.loguniform,
                     'sampling-scope': [0.01, 0.2],
                     'type': 'continuous'},
+                'force_col_wise': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
+                'force_row_wise ': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
                 'colsample_bytree': {
                     'hyperopt-dist': hp.uniform,
                     'sampling-scope': [0.4, 1],
@@ -599,17 +707,45 @@ class PipelineSearchSpace(SearchSpace):
                 'reg_lambda': {
                     'hyperopt-dist': hp.loguniform,
                     'sampling-scope': [1e-8, 10],
-                    'type': 'continuous'}
+                    'type': 'continuous'},
+                'early_stopping_rounds': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [5, 50],
+                    'type': 'discrete'},
             },
             'lgbmreg': {
+                'boosting_type': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [['gbdt', 'dart', 'goss']],
+                    'type': 'categorical'},
                 'num_leaves': {
                     'hyperopt-dist': hp.uniformint,
                     'sampling-scope': [2, 256],
                     'type': 'discrete'},
+                'min_data_in_leaf': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [5, 100],
+                    'type': 'discrete'},
+                'bagging_fraction': {
+                    'hyperopt-dist': hp.loguniform,
+                    'sampling-scope': [0.01, 1.0],
+                    'type': 'continuous'},
+                'extra_trees': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
                 'learning_rate': {
                     'hyperopt-dist': hp.loguniform,
                     'sampling-scope': [0.01, 0.2],
                     'type': 'continuous'},
+                'force_col_wise': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
+                'force_row_wise ': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'},
                 'colsample_bytree': {
                     'hyperopt-dist': hp.uniform,
                     'sampling-scope': [0.4, 1],
@@ -625,7 +761,18 @@ class PipelineSearchSpace(SearchSpace):
                 'reg_lambda': {
                     'hyperopt-dist': hp.loguniform,
                     'sampling-scope': [1e-8, 10],
-                    'type': 'continuous'}
+                    'type': 'continuous'},
+                'objective': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [
+                        ['regression', 'regression_l1', 'huber', 'fair',
+                         'poisson', 'quantile', 'mape', 'tweedie', 'gamma']
+                    ],
+                    'type': 'categorical'},
+                'early_stopping_rounds': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [5, 50],
+                    'type': 'discrete'},
             },
             'catboost': {
                 'iterations': {
@@ -783,6 +930,45 @@ class PipelineSearchSpace(SearchSpace):
                     'hyperopt-dist': hp.choice,
                     'sampling-scope': [['euclidean', 'manhattan', 'cosine']],
                     'type': 'categorical'}
+            },
+            'tabpfn': {
+                'n_estimators': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [1, 10],
+                    'type': 'discrete'
+                },
+                'softmax_temperature': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [0.0, 1.0],
+                    'type': 'continuous'
+                },
+                'balance_probabilities': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'
+                },
+                'average_before_softmax': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'
+                },
+            },
+            'tabpfnreg': {
+                'n_estimators': {
+                    'hyperopt-dist': hp.uniformint,
+                    'sampling-scope': [1, 10],
+                    'type': 'discrete'
+                },
+                'softmax_temperature': {
+                    'hyperopt-dist': hp.uniform,
+                    'sampling-scope': [0.0, 1.0],
+                    'type': 'continuous'
+                },
+                'average_before_softmax': {
+                    'hyperopt-dist': hp.choice,
+                    'sampling-scope': [[True, False]],
+                    'type': 'categorical'
+                },
             }
         }
 
@@ -791,6 +977,7 @@ class PipelineSearchSpace(SearchSpace):
                 parameters_per_operation.update(self.custom_search_space)
             else:
                 for operation_name, operation_dct in self.custom_search_space.items():
-                    parameters_per_operation[operation_name].update(operation_dct)
+                    parameters_per_operation[operation_name].update(
+                        operation_dct)
 
         return parameters_per_operation

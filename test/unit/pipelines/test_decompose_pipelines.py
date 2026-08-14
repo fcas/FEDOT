@@ -69,7 +69,11 @@ def generate_cascade_decompose_pipeline():
     return pipeline
 
 
-def get_classification_data(classes_amount: int = 2):
+def get_classification_data(
+        classes_amount: int = 2,
+        samples_amount: int = 800,
+        features_amount: int = 4,
+):
     """ Function generate synthetic dataset for classification task
 
     :param classes_amount: amount of classes to predict
@@ -81,9 +85,12 @@ def get_classification_data(classes_amount: int = 2):
     # Define options for dataset with 800 objects
     features_options = {'informative': 2, 'redundant': 1,
                         'repeated': 1, 'clusters_per_class': 1}
-    x_train, y_train, x_test, y_test = get_classification_dataset(features_options,
-                                                                  800, 4,
-                                                                  classes_amount)
+    x_train, y_train, x_test, y_test = get_classification_dataset(
+        features_options,
+        samples_amount=samples_amount,
+        features_amount=features_amount,
+        classes_amount=classes_amount
+    )
     y_train = y_train.reshape((-1, 1))
     y_test = y_test.reshape((-1, 1))
 
@@ -145,14 +152,14 @@ def test_order_by_data_flow_len_correct():
     counters can allow for decompose implementation to determine how the nodes
     in the graph are located
     """
-    input_data = get_iris_data()
-    input_data = DataPreprocessor().obligatory_prepare_for_fit(input_data)
-
     data_operations = ['scaling', 'normalization', 'pca', 'poly_features']
     model_operations = ['lda', 'knn', 'logit']
     list_with_operations = list(product(data_operations, model_operations))
 
     for data_operation, model_operation in list_with_operations:
+        input_data = get_iris_data()
+        input_data = DataPreprocessor().obligatory_prepare_for_fit(input_data)
+
         # Generate pipeline with different operations in the nodes with decomposition
         pipeline = generate_pipeline_with_decomposition(data_operation,
                                                         model_operation)
@@ -186,10 +193,9 @@ def test_correctness_filter_pipeline_decomposition():
     # Get pipeline
     pipeline = generate_pipeline_with_filtering()
     pipeline.fit(train_input)
-    pipeline.predict(predict_input)
+    prediction = pipeline.predict(predict_input)
 
-    is_pipeline_worked_correctly = True
-    return is_pipeline_worked_correctly
+    assert prediction is not None
 
 
 def test_multiclass_classification_decomposition():
@@ -203,10 +209,9 @@ def test_multiclass_classification_decomposition():
     # Get pipeline
     pipeline = generate_pipeline_with_decomposition('scaling', 'logit')
     pipeline.fit(train_input)
-    pipeline.predict(predict_input)
+    prediction = pipeline.predict(predict_input)
 
-    is_pipeline_worked_correctly = True
-    return is_pipeline_worked_correctly
+    assert prediction is not None
 
 
 def test_cascade_classification_decomposition():
@@ -220,10 +225,9 @@ def test_cascade_classification_decomposition():
     # Get pipeline
     pipeline = generate_cascade_decompose_pipeline()
     pipeline.fit(train_input)
-    pipeline.predict(predict_input)
+    prediction = pipeline.predict(predict_input)
 
-    is_pipeline_worked_correctly = True
-    return is_pipeline_worked_correctly
+    assert prediction is not None
 
 
 def test_ts_forecasting_decomposition():

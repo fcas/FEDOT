@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import roc_auc_score as roc_auc, mean_squared_error
+from sklearn.metrics import roc_auc_score as roc_auc, mean_squared_error, r2_score
 
 from fedot.core.data.data import InputData
 from fedot.core.data.data_split import train_test_data_setup
@@ -76,3 +77,53 @@ def test_boosting_regression_operation():
         assert isinstance(pipeline, Pipeline)
         assert predicted_output.predict.shape[0] == n_samples * 0.2
         assert metric < rmse_threshold
+
+
+def run_tabpfn(
+        model_name: str,
+        train_data: pd.DataFrame,
+        test_data: pd.DataFrame,
+        task: str,
+):
+    try:
+        pipeline = PipelineBuilder().add_node(model_name).build()
+        pipeline.fit(train_data)
+        predicted_output = pipeline.predict(test_data, output_mode='labels')
+        if task == 'classification':
+            metric = roc_auc(test_data.target, predicted_output.predict)
+        else:
+            metric = r2_score(test_data.target, predicted_output.predict)
+
+        assert isinstance(pipeline, Pipeline)
+        assert metric > 0.5
+    except ModuleNotFoundError:
+        pass
+
+
+def test_tabpfn_classification_operation():
+    n_samples = 100
+    train_data, test_data = get_classification_data(
+        classes_amount=2,
+        samples_amount=n_samples,
+        features_amount=4,
+    )
+
+    model_names = OperationTypesRepository().suitable_operation(
+        task_type=TaskTypesEnum.classification, tags=['tabpfn', 'cpu']
+    )
+
+    for model_name in model_names:
+        run_tabpfn(model_name, train_data, test_data, task='classification')
+
+
+def test_tabpfn_regression_operation():
+    n_samples = 100
+    data = get_synthetic_regression_data(n_samples=n_samples, n_features=4, random_state=42)
+    train_data, test_data = train_test_data_setup(data)
+
+    model_names = OperationTypesRepository().suitable_operation(
+        task_type=TaskTypesEnum.regression, tags=['tabpfn', 'cpu']
+    )
+
+    for model_name in model_names:
+        run_tabpfn(model_name, train_data, test_data, task='regression')

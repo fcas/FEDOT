@@ -216,7 +216,7 @@ def run_nemo_based_forecasting(time_series, exog_variable, len_forecast=60, visu
         predicted = np.ravel(np.array(predicted_values))
         test_data = np.ravel(test_data)
 
-        mse_before = mean_squared_error(test_data, predicted, squared=False)
+        mse_before = mean_squared_error(test_data, predicted)
         mae_before = mean_absolute_error(test_data, predicted)
         mape_before = mean_absolute_percentage_error(test_data, predicted)
 
@@ -248,8 +248,8 @@ def boxplot_visualize(df, label):
 
 def run_single_example(len_forecast=40, visualization=False):
     ts_name = 'sea_level'
-    path_to_file = '../../cases/data/nemo/sea_surface_height.csv'
-    path_to_exog_file = '../../cases/data/nemo/sea_surface_height_nemo.csv'
+    path_to_file = '../../examples/real_cases/data/nemo/sea_surface_height.csv'
+    path_to_exog_file = '../../examples/real_cases/data/nemo/sea_surface_height_nemo.csv'
 
     df = pd.read_csv(path_to_file)
     time_series = df[ts_name]
@@ -323,8 +323,8 @@ def run_prediction_examples(mode='single', visualization=False):
     if mode == 'single':
         run_single_example(len_forecast=40, visualization=visualization)
     if mode == 'multiple':
-        run_multiple_example(path_to_file='../../cases/data/nemo/SSH_points_grid.csv',
-                             path_to_exog_file='../../cases/data/nemo/SSH_nemo_points_grid.csv',
+        run_multiple_example(path_to_file='../../examples/real_cases/data/nemo/SSH_points_grid.csv',
+                             path_to_exog_file='../../examples/real_cases/data/nemo/SSH_nemo_points_grid.csv',
                              out_path=None,
                              len_forecast=30,
                              visualization=visualization)

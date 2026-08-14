@@ -85,6 +85,7 @@ FEDOT предоставляет возможность использовать
 ================
 
 FEDOT предоставляет высокоуровневый API, который удобно использовать. API может использоваться для задач классификации, регрессии и прогнозирования временных рядов.
+
 Чтобы использовать API, выполните следующие действия:
 
 1. Импортируйте класс ``Fedot``
@@ -130,9 +131,9 @@ Jupyter ноутбуки с примерами находятся в репоз�
 
 Расширенные примеры:
 
-- Задача с кредитным скорингом `binary classification task <https://github.com/aimclub/FEDOT/blob/master/cases/credit_scoring/credit_scoring_problem.py>`__
-- Прогнозирование временных рядов `random process regression <https://github.com/aimclub/FEDOT/blob/master/cases/metocean_forecasting_problem.py>`__
-- Обнаружение спама `natural language preprocessing <https://github.com/aimclub/FEDOT/blob/master/cases/spam_detection.py>`__
+- Задача с кредитным скорингом `binary classification task <https://github.com/aimclub/FEDOT/blob/master/examples/real_cases/credit_scoring/credit_scoring_problem.py>`__
+- Прогнозирование временных рядов `random process regression <https://github.com/aimclub/FEDOT/blob/master/examples/real_cases/metocean_forecasting_problem.py>`__
+- Обнаружение спама `natural language preprocessing <https://github.com/aimclub/FEDOT/blob/master/examples/real_cases/spam_detection.py>`__
 - Предсказание сорта вина `multi-modal data <https://github.com/aimclub/FEDOT/blob/master/examples/advanced/multimodal_text_num_example.py>`__
 
 
@@ -185,8 +186,9 @@ Jupyter ноутбуки с примерами находятся в репоз�
 В настоящее время мы работаем над новыми функциями и пытаемся улучшить производительность и удобство использования FEDOT.
 Основные текущие задачи и планы:
 
-* Реализация методов и алгоритмов мета-обучения
-* Повышение эффективности оптимизационного ядра GOLEM.
+* Реализация большой языковой модели для задач автоматического машинного обучения в `FEDOT.LLM <https://github.com/ITMO-NSS-team/FEDOT.LLM>`__.
+* Реализация методов и алгоритмов мета-обучения в `GAMLET <https://github.com/ITMO-NSS-team/GAMLET>`__.
+* Повышение эффективности оптимизационного ядра `GOLEM <https://github.com/aimclub/GOLEM/>`__.
 * Поддержка более сложных вариантов пайплайнов, особенно для задач прогнозирования временных рядов.
 
 
@@ -209,19 +211,27 @@ Jupyter ноутбуки с примерами находятся в репоз�
 
 Мы благодарны контрибьютерам за их важный вклад, а участникам многочисленных конференций и семинаров - за их ценные советы и предложения.
 
+
+Финансирование
+==============
+
+Реализовано при финансовой поддержке Фонда поддержки проектов
+Национальной технологической инициативы в рамках реализации "дорожной карты"
+развития высокотехнологичного направления "Искусственный интеллект" на период до 2030 года (Договор № 70-2021-00187)
+
 Дополнительные проекты
 ======================
-- Оптимизационное ядро, вынесенное в библиотеку `GOLEM <https://github.com/aimclub/GOLEM/>`__.
-- Прототип реализации Meta-AutoML - `MetaFEDOT <https://github.com/ITMO-NSS-team/MetaFEDOT>`__.
-- Прототип web-GUI для FEDOT - `FEDOT.WEB <https://github.com/aimclub/FEDOT.Web>`__.
-
+- Оптимизационное ядро, вынесенное в библиотеку GOLEM.
+- Прототип web-GUI для FEDOT доступен в `FEDOT.WEB <https://github.com/aimclub/FEDOT.Web>`__ репозитории.
+- Прототип реализации Meta-AutoML - MetaFEDOT.
+- Прототип реализации LLM для AutoML - FEDOT.LLM.
 
 Контакты
 ========
 - `Telegram-канал <https://t.me/FEDOT_helpdesk>`_  для решения проблем и ответов на вопросы о FEDOT
 - Команда `Natural System Simulation <https://itmo-nss-team.github.io/>`_
 - `Анна Калюжная <https://scholar.google.com/citations?user=bjiILqcAAAAJ&hl=ru>`_, руководитель (anna.kalyuzhnaya@itmo.ru)
-- `Новости <https://t.me/NSS_group>`_
+- `Новостной Telegram-канал <https://t.me/NSS_group>`_
 - `Youtube канал <https://www.youtube.com/channel/UC4K9QWaEUpT_p3R4FeDp5jA>`_
 
 Разработка ведётся при поддержке
@@ -247,9 +257,6 @@ Jupyter ноутбуки с примерами находятся в репоз�
   year={2021},
   pages={926-933},
   doi={10.1109/CEC45853.2021.9504773}}
-
-
-Другие статьи доступны на `ResearchGate <https://www.researchgate.net/project/Evolutionary-multi-modal-AutoML-with-FEDOT-framework>`_.
 
 .. |docs| image:: https://readthedocs.org/projects/ebonite/badge/?style=flat
    :target: https://fedot.readthedocs.io/en/latest/

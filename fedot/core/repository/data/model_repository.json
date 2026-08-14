@@ -129,6 +129,48 @@
       ],
       "tasks": "[TaskTypesEnum.regression]"
     },
+    "tabpfn_class": {
+      "accepted_node_types": [
+        "any"
+      ],
+      "description": "TabPFN implementations for classification problems",
+      "forbidden_node_types": "[]",
+      "input_type": "[DataTypesEnum.table]",
+      "output_type": "[DataTypesEnum.table]",
+      "strategies": [
+        "fedot.core.operations.evaluation.tabpfn",
+        "TabPFNClassificationStrategy"
+      ],
+      "tags": [
+        "neural",
+        "non_linear",
+        "tabpfn",
+        "non-default",
+        "cpu"
+      ],
+      "tasks": "[TaskTypesEnum.classification]"
+    },
+    "tabpfn_regr": {
+      "accepted_node_types": [
+        "any"
+      ],
+      "description": "TabPFN implementations for regression problems",
+      "forbidden_node_types": "[]",
+      "input_type": "[DataTypesEnum.table]",
+      "output_type": "[DataTypesEnum.table]",
+      "strategies": [
+        "fedot.core.operations.evaluation.tabpfn",
+        "TabPFNRegressionStrategy"
+      ],
+      "tags": [
+        "neural",
+        "non_linear",
+        "tabpfn",
+        "non-default",
+        "cpu"
+      ],
+      "tasks": "[TaskTypesEnum.regression]"
+    },
     "ts_model": {
       "description": "Implementations of the time series models",
       "input_type": "[DataTypesEnum.ts]",
@@ -199,10 +241,19 @@
         "non-default"
       ]
     },
+    "clstm": {
+      "meta": "ts_model",
+      "presets": ["ts"],
+      "tags": [
+        "non_linear",
+        "non-default"
+      ]
+    },
     "bernb": {
       "meta": "sklearn_class",
       "presets": ["fast_train"],
       "tags": [
+        "deprecated",
         "simple",
         "bayesian",
         "non_multi",
@@ -227,6 +278,7 @@
       "meta": "sklearn_class",
       "presets": ["fast_train", "*tree"],
       "tags": [
+        "deprecated",
         "simple",
         "tree",
         "interpretable",
@@ -237,6 +289,7 @@
       "meta": "sklearn_regr",
       "presets": ["fast_train", "ts", "*tree"],
       "tags": [
+        "deprecated",
         "tree",
         "interpretable",
         "non_linear"
@@ -246,6 +299,7 @@
       "meta": "sklearn_regr",
       "presets": ["*tree"],
       "tags": [
+        "deprecated",
         "boosting",
         "non_multi",
         "non_linear",
@@ -288,20 +342,20 @@
       "meta": "custom_class",
       "presets": ["fast_train"],
       "tags": [
-        "discriminant", "linear", "correct_params", "non-default"
+        "deprecated", "discriminant", "linear", "correct_params", "non-default"
       ]
     },
     "lgbm": {
-      "meta": "sklearn_class",
+      "meta": "boosting_class",
       "tags": [
-        "tree", "non_linear"
+        "tree", "non_linear", "boosting"
       ]
     },
     "lgbmreg": {
-      "meta": "sklearn_regr",
+      "meta": "boosting_regr",
       "presets": ["*tree"],
       "tags": [
-        "tree", "non_multi", "non_linear"
+        "tree", "non_multi", "non_linear", "boosting"
       ]
     },
     "linear": {
@@ -324,6 +378,7 @@
     "mlp": {
       "meta": "sklearn_class",
       "tags": [
+        "deprecated",
         "neural",
         "non_linear"
       ]
@@ -332,6 +387,7 @@
       "meta": "sklearn_class",
       "presets": ["fast_train"],
       "tags": [
+        "deprecated",
         "non-default",
         "bayesian",
         "non_multi",
@@ -342,6 +398,7 @@
       "meta": "custom_class",
       "presets": ["fast_train"],
       "tags": [
+        "deprecated",
         "discriminant",
         "quadratic",
         "non_linear"
@@ -382,7 +439,7 @@
       "meta": "sklearn_regr",
       "presets": ["fast_train", "ts"],
       "tags": [
-        "non_multi", "non_linear"
+        "deprecated", "non_multi", "non_linear"
       ]
     },
     "stl_arima": {
@@ -447,6 +504,7 @@
     "svc": {
       "meta": "custom_class",
       "tags": [
+        "deprecated",
         "no_prob",
         "expensive",
         "non_linear"
@@ -455,6 +513,7 @@
     "svr": {
       "meta": "sklearn_regr",
       "tags": [
+        "deprecated",
         "non_multi",
         "non_linear"
       ]
@@ -469,17 +528,17 @@
       ]
     },
     "xgboost": {
-      "meta": "sklearn_class",
+      "meta": "boosting_class",
       "presets": ["*tree"],
       "tags": [
-        "tree", "non-default", "non_linear"
+        "tree", "non_linear", "boosting"
       ]
     },
-    "xgbreg": {
-      "meta": "sklearn_regr",
+    "xgboostreg": {
+      "meta": "boosting_regr",
       "presets": ["*tree"],
       "tags": [
-        "tree", "non_multi", "non-default", "non_linear"
+        "tree", "non_multi", "non_linear", "boosting"
       ]
     },
     "cnn": {
@@ -496,6 +555,14 @@
           "custom_model",
           "non-default"
         ]
-	}
+	},
+    "tabpfn": {
+      "meta": "tabpfn_class",
+      "tags": ["non_auto"]
+    },
+    "tabpfnreg": {
+      "meta": "tabpfn_regr",
+      "tags": ["non_auto"]
+    }
   }
 }
